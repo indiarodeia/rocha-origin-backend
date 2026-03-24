@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Api.Models
 {
-    [Table("addresses")]
+    [Table("address")]
     public class Address
     {
         [Key]
