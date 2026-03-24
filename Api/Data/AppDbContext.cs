@@ -1,4 +1,5 @@
 ﻿using Api.Models;
+using Api.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 using Route = Api.Models.Route;
 
@@ -17,10 +18,12 @@ public sealed class AppDbContext : DbContext
     public DbSet<Establishment> Establishments => Set<Establishment>();
     public DbSet<EstablishmentMenuItem> EstablishmentMenuItems => Set<EstablishmentMenuItem>();
     public DbSet<Route> Routes => Set<Route>();
+    public DbSet<Product> Products => Set<Product>();
 
     //Enums
     public DbSet<PaymentType> PaymentTypes => Set<PaymentType>();
     public DbSet<ProductUnit> ProductUnits => Set<ProductUnit>();
+    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -68,6 +71,25 @@ public sealed class AppDbContext : DbContext
                 Id = 2,
                 Label = "UN",
                 Description = "Unit",
+                Order = 2,
+                IsActive = true
+            }
+        );
+
+        modelBuilder.Entity<ProductCategory>().HasData(
+            new ProductCategory
+            {
+                Id = (int)ProductCategoryEnum.Bovino,
+                Label = "Bovino",
+                Description = "Produtos da categoria bovino",
+                Order = 1,
+                IsActive = true
+            },
+            new ProductCategory
+            {
+                Id = (int)ProductCategoryEnum.Transformados,
+                Label = "Transformados",
+                Description = "Produtos transformados",
                 Order = 2,
                 IsActive = true
             }
