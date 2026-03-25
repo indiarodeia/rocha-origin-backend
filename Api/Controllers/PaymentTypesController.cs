@@ -7,11 +7,11 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("api/payment-types")]
-    public class PaymentTypeController : ControllerBase
+    public class PaymentTypesController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public PaymentTypeController(AppDbContext context)
+        public PaymentTypesController(AppDbContext context)
         {
             _context = context;
         }

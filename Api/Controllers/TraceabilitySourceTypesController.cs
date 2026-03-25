@@ -7,11 +7,11 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("api/traceability-source-types")]
-    public class TraceabilitySourceTypeController : ControllerBase
+    public class TraceabilitySourceTypesController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public TraceabilitySourceTypeController(AppDbContext context)
+        public TraceabilitySourceTypesController(AppDbContext context)
         {
             _context = context;
         }

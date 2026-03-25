@@ -6,41 +6,41 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/delivery-types")]
-    public class DeliveryTypeController : ControllerBase
+    [Route("api/order-statuses")]
+    public class OrderStatusesController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public DeliveryTypeController(AppDbContext context)
+        public OrderStatusesController(AppDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DeliveryType>>> GetAllActive()
+        public async Task<ActionResult<IEnumerable<OrderStatus>>> GetAllActive()
         {
-            var deliveryTypes = await _context.DeliveryTypes
+            var orderStatuses = await _context.OrderStatuses
                 .AsNoTracking()
                 .Where(x => x.IsActive)
                 .OrderBy(x => x.Order)
                 .ToListAsync();
 
-            return Ok(deliveryTypes);
+            return Ok(orderStatuses);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<DeliveryType>> GetById(int id)
+        public async Task<ActionResult<OrderStatus>> GetById(int id)
         {
-            var deliveryType = await _context.DeliveryTypes
+            var orderStatus = await _context.OrderStatuses
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (deliveryType == null)
+            if (orderStatus == null)
             {
                 return NotFound();
             }
 
-            return Ok(deliveryType);
+            return Ok(orderStatus);
         }
     }
 }

@@ -6,41 +6,41 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/product-categories")]
-    public class ProductCategoryController : ControllerBase
+    [Route("api/product-units")]
+    public class ProductUnitsController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ProductCategoryController(AppDbContext context)
+        public ProductUnitsController(AppDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductCategory>>> GetAllActive()
+        public async Task<ActionResult<IEnumerable<ProductUnit>>> GetAllActive()
         {
-            var productCategories = await _context.ProductCategories
+            var productUnits = await _context.ProductUnits
                 .AsNoTracking()
                 .Where(p => p.IsActive)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
-            return Ok(productCategories);
+            return Ok(productUnits);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ProductCategory>> GetById(int id)
+        public async Task<ActionResult<ProductUnit>> GetById(int id)
         {
-            var productCategory = await _context.ProductCategories
+            var productUnit = await _context.ProductUnits
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (productCategory == null)
+            if (productUnit == null)
             {
                 return NotFound();
             }
 
-            return Ok(productCategory);
+            return Ok(productUnit);
         }
     }
 }
