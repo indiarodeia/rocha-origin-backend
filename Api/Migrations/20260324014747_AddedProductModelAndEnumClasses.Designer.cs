@@ -3,6 +3,7 @@ using System;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324014747_AddedProductModelAndEnumClasses")]
+    partial class AddedProductModelAndEnumClasses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,132 +59,6 @@ namespace Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("address");
-                });
-
-            modelBuilder.Entity("Api.Models.Animal", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("AgeMonths")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("AnimalIdentification")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("AnimalSpeciesId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ArrivalDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("BirthPlace")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Breed")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("CarcassPhotoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<decimal>("ColdWeightKg")
-                        .HasColumnType("numeric(10,3)");
-
-                    b.Property<DateTime?>("DispatchDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EuropCategory")
-                        .HasMaxLength(1)
-                        .HasColumnType("character varying(1)");
-
-                    b.Property<string>("EuropConformation")
-                        .HasMaxLength(1)
-                        .HasColumnType("character varying(1)");
-
-                    b.Property<int?>("EuropFatClass")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("EuropRaw")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<decimal?>("Ph")
-                        .HasColumnType("numeric(4,2)");
-
-                    b.Property<string>("RearingPlace")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime>("SlaughterDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("SlaughterhouseRef")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Guid>("SupplierId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnimalSpeciesId");
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("animal");
-                });
-
-            modelBuilder.Entity("Api.Models.AnimalSpecies", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("animal_species");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Espécie bovina",
-                            IsActive = true,
-                            Label = "BOVINO",
-                            Order = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Espécie ovina",
-                            IsActive = true,
-                            Label = "OVINO",
-                            Order = 2
-                        });
                 });
 
             modelBuilder.Entity("Api.Models.Client", b =>
@@ -524,85 +401,6 @@ namespace Api.Migrations
                     b.ToTable("route");
                 });
 
-            modelBuilder.Entity("Api.Models.Supplier", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AddressId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Certifications")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<string>("CoverPicture")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("ExplorationId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<string>("ProfilePicture")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("UpdateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("VatNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<decimal>("VatRate")
-                        .HasColumnType("numeric(5,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.ToTable("supplier");
-                });
-
-            modelBuilder.Entity("Api.Models.Animal", b =>
-                {
-                    b.HasOne("Api.Models.AnimalSpecies", "Species")
-                        .WithMany()
-                        .HasForeignKey("AnimalSpeciesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Api.Models.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Species");
-
-                    b.Navigation("Supplier");
-                });
-
             modelBuilder.Entity("Api.Models.Client", b =>
                 {
                     b.HasOne("Api.Models.Address", "BillingAddress")
@@ -671,15 +469,6 @@ namespace Api.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("DefaultUnit");
-                });
-
-            modelBuilder.Entity("Api.Models.Supplier", b =>
-                {
-                    b.HasOne("Api.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("Api.Models.Establishment", b =>
