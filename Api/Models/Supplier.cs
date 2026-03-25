@@ -52,4 +52,7 @@ public class Supplier
 
     [Required]
     public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
+
+    [Required]
+    public bool IsActive { get; set; } = true;
 }

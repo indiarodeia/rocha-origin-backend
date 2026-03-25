@@ -28,5 +28,8 @@ namespace Api.Models
         [Required]
         [MaxLength(100)]
         public string Country { get; set; } = string.Empty;
+
+        [Required]
+        public bool IsActive { get; set; } = true;
     }
 }

@@ -69,4 +69,7 @@ public class Animal
 
     [MaxLength(2000)]
     public string? Notes { get; set; }
+
+    [Required]
+    public bool IsActive { get; set; } = true;
 }

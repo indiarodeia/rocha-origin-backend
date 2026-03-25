@@ -69,4 +69,7 @@ public class Order
 
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    [Required]
+    public bool IsActive { get; set; } = true;
 }
