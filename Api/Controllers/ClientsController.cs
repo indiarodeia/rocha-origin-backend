@@ -1,4 +1,5 @@
 ﻿using Api.Data;
+using Api.Dtos;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,86 @@ namespace Api.Controllers
             }
 
             return Ok(client);
+        }
+
+        [HttpPost("search-and-filter")]
+        public async Task<ActionResult<IEnumerable<Client>>> SearchAndFilterClients([FromBody] SearchAndFilterClientsRequestDto request, CancellationToken cancellationToken)
+        {
+            var search = request.Search?.Trim();
+            var city = request.City?.Trim();
+
+            IQueryable<Client> query = _context.Clients
+                .AsNoTracking()
+                .Where(x => x.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x => EF.Functions.ILike(x.CompanyName, $"%{search}%"));
+            }
+
+            if (!string.IsNullOrWhiteSpace(city))
+            {
+                query = query.Where(x =>
+                    x.BillingAddress != null &&
+                    EF.Functions.ILike(x.BillingAddress.City, $"%{city}%"));
+            }
+
+            if (request.PaymentTypeId.HasValue)
+            {
+                query = query.Where(x => x.PaymentTypeId == request.PaymentTypeId.Value);
+            }
+
+            query = request.SortBy?.Trim().ToLowerInvariant() switch
+            {
+                "createdat" => request.IsSortAscending
+                    ? query.OrderBy(x => x.CreatedAt).ThenBy(x => x.CompanyName)
+                    : query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.CompanyName),
+
+                _ => request.IsSortAscending
+                    ? query.OrderBy(x => x.CompanyName).ThenByDescending(x => x.CreatedAt)
+                    : query.OrderByDescending(x => x.CompanyName).ThenByDescending(x => x.CreatedAt)
+            };
+
+            var clients = await query
+                .Include(x => x.BillingAddress)
+                .Include(x => x.PaymentType)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
+
+            return Ok(clients);
+        }
+
+        [HttpPost("search-and-filter/count")]
+        public async Task<ActionResult<int>> SearchAndFilterClientsCount([FromBody] SearchAndFilterClientsRequestDto request, CancellationToken cancellationToken)
+        {
+            var search = request.Search?.Trim();
+            var city = request.City?.Trim();
+
+            IQueryable<Client> query = _context.Clients
+                .AsNoTracking()
+                .Where(x => x.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x => EF.Functions.ILike(x.CompanyName, $"%{search}%"));
+            }
+
+            if (!string.IsNullOrWhiteSpace(city))
+            {
+                query = query.Where(x =>
+                    x.BillingAddress != null &&
+                    EF.Functions.ILike(x.BillingAddress.City, $"%{city}%"));
+            }
+
+            if (request.PaymentTypeId.HasValue)
+            {
+                query = query.Where(x => x.PaymentTypeId == request.PaymentTypeId.Value);
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            return Ok(totalCount);
         }
 
         [HttpPost]

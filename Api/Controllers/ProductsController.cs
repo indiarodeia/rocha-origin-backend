@@ -1,4 +1,5 @@
 ﻿using Api.Data;
+using Api.Dtos;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,116 @@ namespace Api.Controllers
             }
 
             return Ok(product);
+        }
+
+        [HttpPost("search-and-filter")]
+        public async Task<ActionResult<IEnumerable<Product>>> SearchAndFilterProducts([FromBody] SearchAndFilterProductsRequestDto request, CancellationToken cancellationToken)
+        {
+            var search = request.Search?.Trim();
+
+            IQueryable<Product> query = _context.Products
+                .AsNoTracking();
+
+            if (request.IsActive.HasValue)
+            {
+                query = query.Where(x => x.IsActive == request.IsActive.Value);
+            }
+            else
+            {
+                query = query.Where(x => x.IsActive);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    EF.Functions.ILike(x.Name, $"%{search}%") ||
+                    (x.Category != null && EF.Functions.ILike(x.Category.Name, $"%{search}%")));
+            }
+
+            if (request.CategoryId.HasValue)
+            {
+                query = query.Where(x => x.ProductCategoryId == request.CategoryId.Value);
+            }
+
+            if (request.VatRate.HasValue)
+            {
+                query = query.Where(x => x.DefaultVatRate.HasValue && x.DefaultVatRate.Value == request.VatRate.Value);
+            }
+
+            query = request.SortBy?.Trim().ToLowerInvariant() switch
+            {
+                "category" => request.IsSortAscending
+                    ? query.OrderBy(x => x.Category != null ? x.Category.Name : string.Empty)
+                        .ThenBy(x => x.Name)
+                    : query.OrderByDescending(x => x.Category != null ? x.Category.Name : string.Empty)
+                        .ThenBy(x => x.Name),
+
+                "price" => request.IsSortAscending
+                    ? query.OrderBy(x => x.DefaultSellPrice ?? decimal.MaxValue)
+                        .ThenBy(x => x.Name)
+                    : query.OrderByDescending(x => x.DefaultSellPrice ?? decimal.MinValue)
+                        .ThenBy(x => x.Name),
+
+                "status" => request.IsSortAscending
+                    ? query.OrderBy(x => x.IsActive)
+                        .ThenBy(x => x.Name)
+                    : query.OrderByDescending(x => x.IsActive)
+                        .ThenBy(x => x.Name),
+
+                _ => request.IsSortAscending
+                    ? query.OrderBy(x => x.Name)
+                        .ThenBy(x => x.ProductCategoryId)
+                    : query.OrderByDescending(x => x.Name)
+                        .ThenBy(x => x.ProductCategoryId)
+            };
+
+            var products = await query
+                .Include(x => x.Category)
+                .Include(x => x.DefaultUnit)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
+
+            return Ok(products);
+        }
+
+        [HttpPost("search-and-filter/count")]
+        public async Task<ActionResult<int>> SearchAndFilterProductsCount([FromBody] SearchAndFilterProductsRequestDto request, CancellationToken cancellationToken)
+        {
+            var search = request.Search?.Trim();
+
+            IQueryable<Product> query = _context.Products
+                .AsNoTracking();
+
+            if (request.IsActive.HasValue)
+            {
+                query = query.Where(x => x.IsActive == request.IsActive.Value);
+            }
+            else
+            {
+                query = query.Where(x => x.IsActive);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    EF.Functions.ILike(x.Name, $"%{search}%") ||
+                    (x.Category != null && EF.Functions.ILike(x.Category.Name, $"%{search}%")));
+            }
+
+            if (request.CategoryId.HasValue)
+            {
+                query = query.Where(x => x.ProductCategoryId == request.CategoryId.Value);
+            }
+
+            if (request.VatRate.HasValue)
+            {
+                query = query.Where(x => x.DefaultVatRate.HasValue && x.DefaultVatRate.Value == request.VatRate.Value);
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            return Ok(totalCount);
         }
 
         [HttpPost]

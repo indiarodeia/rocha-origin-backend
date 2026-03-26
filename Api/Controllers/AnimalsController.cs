@@ -1,4 +1,5 @@
 ﻿using Api.Data;
+using Api.Dtos;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +60,99 @@ namespace Api.Controllers
             }
 
             return Ok(animal);
+        }
+
+        [HttpPost("search-and-filter")]
+        public async Task<ActionResult<IEnumerable<Animal>>> SearchAndFilterAnimals([FromBody] SearchAndFilterAnimalsRequestDto request, CancellationToken cancellationToken)
+        {
+            var search = request.Search?.Trim();
+
+            IQueryable<Animal> query = _context.Animals
+                .AsNoTracking()
+                .Where(x => x.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    EF.Functions.ILike(x.AnimalIdentification, $"%{search}%") ||
+                    (x.Supplier != null && EF.Functions.ILike(x.Supplier.Name, $"%{search}%")) ||
+                    (x.Breed != null && EF.Functions.ILike(x.Breed, $"%{search}%")) ||
+                    (x.EuropRaw != null && EF.Functions.ILike(x.EuropRaw, $"%{search}%")));
+            }
+
+            if (request.SpeciesId.HasValue)
+            {
+                query = query.Where(x => x.AnimalSpeciesId == request.SpeciesId.Value);
+            }
+
+            if (request.SupplierId.HasValue)
+            {
+                query = query.Where(x => x.SupplierId == request.SupplierId.Value);
+            }
+
+            query = request.SortBy?.Trim().ToLowerInvariant() switch
+            {
+                "arrivaldate" => request.IsSortAscending
+                    ? query.OrderBy(x => x.ArrivalDate ?? DateTime.MaxValue)
+                        .ThenBy(x => x.AnimalIdentification)
+                    : query.OrderByDescending(x => x.ArrivalDate ?? DateTime.MinValue)
+                        .ThenBy(x => x.AnimalIdentification),
+
+                "identification" => request.IsSortAscending
+                    ? query.OrderBy(x => x.AnimalIdentification)
+                        .ThenByDescending(x => x.SlaughterDate)
+                    : query.OrderByDescending(x => x.AnimalIdentification)
+                        .ThenByDescending(x => x.SlaughterDate),
+
+                _ => request.IsSortAscending
+                    ? query.OrderBy(x => x.SlaughterDate)
+                        .ThenBy(x => x.AnimalIdentification)
+                    : query.OrderByDescending(x => x.SlaughterDate)
+                        .ThenBy(x => x.AnimalIdentification)
+            };
+
+            var animals = await query
+                .Include(x => x.Species)
+                .Include(x => x.Supplier)
+                .ThenInclude(x => x.Address)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
+
+            return Ok(animals);
+        }
+
+        [HttpPost("search-and-filter/count")]
+        public async Task<ActionResult<int>> SearchAndFilterAnimalsCount([FromBody] SearchAndFilterAnimalsRequestDto request, CancellationToken cancellationToken)
+        {
+            var search = request.Search?.Trim();
+
+            IQueryable<Animal> query = _context.Animals
+                .AsNoTracking()
+                .Where(x => x.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    EF.Functions.ILike(x.AnimalIdentification, $"%{search}%") ||
+                    (x.Supplier != null && EF.Functions.ILike(x.Supplier.Name, $"%{search}%")) ||
+                    (x.Breed != null && EF.Functions.ILike(x.Breed, $"%{search}%")) ||
+                    (x.EuropRaw != null && EF.Functions.ILike(x.EuropRaw, $"%{search}%")));
+            }
+
+            if (request.SpeciesId.HasValue)
+            {
+                query = query.Where(x => x.AnimalSpeciesId == request.SpeciesId.Value);
+            }
+
+            if (request.SupplierId.HasValue)
+            {
+                query = query.Where(x => x.SupplierId == request.SupplierId.Value);
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            return Ok(totalCount);
         }
 
         [HttpPost]
