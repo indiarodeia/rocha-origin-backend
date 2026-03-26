@@ -68,7 +68,7 @@ namespace Api.Controllers
             {
                 query = query.Where(x =>
                     EF.Functions.ILike(x.Name, $"%{search}%") ||
-                    (x.Category != null && EF.Functions.ILike(x.Category.Name, $"%{search}%")));
+                    (x.Category != null && EF.Functions.ILike(x.Category.Label, $"%{search}%")));
             }
 
             if (request.CategoryId.HasValue)
@@ -84,9 +84,9 @@ namespace Api.Controllers
             query = request.SortBy?.Trim().ToLowerInvariant() switch
             {
                 "category" => request.IsSortAscending
-                    ? query.OrderBy(x => x.Category != null ? x.Category.Name : string.Empty)
+                    ? query.OrderBy(x => x.Category != null ? x.Category.Label : string.Empty)
                         .ThenBy(x => x.Name)
-                    : query.OrderByDescending(x => x.Category != null ? x.Category.Name : string.Empty)
+                    : query.OrderByDescending(x => x.Category != null ? x.Category.Label : string.Empty)
                         .ThenBy(x => x.Name),
 
                 "price" => request.IsSortAscending
@@ -139,7 +139,7 @@ namespace Api.Controllers
             {
                 query = query.Where(x =>
                     EF.Functions.ILike(x.Name, $"%{search}%") ||
-                    (x.Category != null && EF.Functions.ILike(x.Category.Name, $"%{search}%")));
+                    (x.Category != null && EF.Functions.ILike(x.Category.Label, $"%{search}%")));
             }
 
             if (request.CategoryId.HasValue)
